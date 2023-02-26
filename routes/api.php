@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\BitcoinTrendsApiController;
 use App\Http\Controllers\SubscriptionApiController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -20,4 +21,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 Route::apiResource('subscriptions', SubscriptionApiController::class)->only([
     'store',
+]);
+Route::apiResource('bitcoin-trends', BitcoinTrendsApiController::class)->only([
+    'index',
 ]);
