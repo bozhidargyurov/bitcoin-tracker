@@ -2,9 +2,11 @@
 
 namespace App\Jobs;
 
+use App\Events\BitcoinTrendCreated;
 use App\Models\BitcoinTrend;
 use App\Services\BitfinexClientInterface;
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
@@ -19,12 +21,14 @@ class SaveLastBitcoinPrice implements ShouldQueue
     /**
      * Execute the job.
      */
-    public function handle(BitfinexClientInterface $bitfinexClient): void
+    public function handle(BitfinexClientInterface $bitfinexClient, Dispatcher $dispatcher): void
     {
         $lastPrice = $bitfinexClient->getLastPrice(self::BITFINEX_SYMBOL);
 
         $bitcoinTrend = new BitcoinTrend();
         $bitcoinTrend->price = $lastPrice;
         $bitcoinTrend->save();
+
+        $dispatcher->dispatch(new BitcoinTrendCreated($lastPrice));
     }
 }
