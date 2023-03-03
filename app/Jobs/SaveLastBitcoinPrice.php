@@ -7,7 +7,6 @@ use App\Models\BitcoinTrend;
 use App\Repository\BitcoinTrendRepository;
 use App\Services\BitfinexClientInterface;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
@@ -19,25 +18,25 @@ class SaveLastBitcoinPrice implements ShouldQueue
 
     private const BITFINEX_SYMBOL = 'BTCUSD';
 
-    private BitcoinTrendRepository $bitcoinTrendRepository;
-
-    public function __construct(BitcoinTrendRepository $bitcoinTrendRepository)
+    public function __construct(
+        private readonly BitfinexClientInterface $bitfinexClient,
+        private readonly BitcoinTrendRepository  $bitcoinTrendRepository
+    )
     {
-        $this->bitcoinTrendRepository = $bitcoinTrendRepository;
     }
 
     /**
      * Execute the job.
      */
-    public function handle(BitfinexClientInterface $bitfinexClient, Dispatcher $dispatcher): void
+    public function handle(): void
     {
-        $lastPrice = $bitfinexClient->getLastPrice(self::BITFINEX_SYMBOL);
+        $lastPrice = $this->bitfinexClient->getLastPrice(self::BITFINEX_SYMBOL);
 
         $bitcoinTrend = new BitcoinTrend();
         $bitcoinTrend->price = $lastPrice;
 
         $this->bitcoinTrendRepository->save($bitcoinTrend);
 
-        $dispatcher->dispatch(new BitcoinTrendCreated($lastPrice));
+        BitcoinTrendCreated::dispatch($lastPrice);
     }
 }

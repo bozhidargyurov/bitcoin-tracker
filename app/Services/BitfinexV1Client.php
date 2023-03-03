@@ -9,8 +9,8 @@ use Throwable;
 
 final class BitfinexV1Client implements BitfinexClientInterface
 {
-    private const BASE_API_URL = 'https://api.bitfinex.com/v1';
-    private const TICKER_URL = 'pubticker';
+    public const BASE_API_URL = 'https://api.bitfinex.com/v1';
+    public const TICKER_URL = 'pubticker';
 
     public function getLastPrice(string $symbol): float
     {
